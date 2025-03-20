@@ -43,12 +43,21 @@ contact **appendContactsFromFile(contact **contacts, char *filename);
 contact *editContact(contact **contacts, int index );
 
 /*Menu Function Prototypes*/
-int menu();
+void menu(contact **contacts);
 
 int main() {
     //main function code here
-
+    contact **contacts;
+    menu(contacts);
     return 0;
+}
+
+int countContacts(contact **contacts) {
+    int count = 0;
+    while (contacts[count] != NULL) {
+        count++;
+    }
+    return count;
 }
 
 contact *readNewContact() {
@@ -164,13 +173,13 @@ contact **appendContact(contact **contacts, contact *newContact) {
     // Reallocate memory for the new size
     contact **newContacts = realloc(contacts, (size + 2) * sizeof(contact *));
     if (newContacts == NULL) {
-        fprintf(stderr, "Memory reallocation error in appendContact\n");
+        fprintf(stderr, "Error: Memory reallocation error in appendContact\n");
         // Free the newContact if reallocation fails
         free(newContact->firstName);
         free(newContact->familyName);
         free(newContact->address);
         free(newContact);
-        return contacts;
+        exit(EXIT_FAILURE);
     }
 
     // Append the new contact
@@ -227,10 +236,17 @@ contact **insertContactAlphabetical(contact **contacts, contact *newContact) {
     return newContacts;
 }
 
-contact **removeContactByIndex(contact **contacts, int index) {
+contact **removeContactByIndex(contact **contacts) {
     if (contacts == NULL) {
         fprintf(stderr, "Error: value of addressBook received in removeContactByIndex was NULL\n");
         return NULL;
+    }
+
+    int index;
+    printf("Enter index to remove (0 based): ");
+    if (scanf("%d", &index) != 1) {
+        fprintf(stderr, "Error: Value of index supplied could not be read.\n");
+        return contacts;
     }
 
     int size = 0;
@@ -266,29 +282,27 @@ contact **removeContactByIndex(contact **contacts, int index) {
     return newContacts;
 }
 
-int removeContactByFullName(contact ***contacts, char *firstName, char *familyName) {
+int removeContactByFullName(contact ***contacts) {
     // Check for NULL parameters
-    if (contacts == NULL) {
+    if (contacts == NULL || *contacts == NULL) {
         printf("Error: value of contacts received in removeContactByFullName was NULL\n");
         return 0;
     }
-    if (firstName == NULL) {
-        printf("Error: value of firstName received in removeContactByFullName was NULL\n");
-        return 0;
-    }
-    if (familyName == NULL) {
-        printf("Error: value of familyName received in removeContactByFullName was NULL\n");
+
+    char firstName[50];
+    char familyName[50];
+
+    // Prompt the user for the first name and family name
+    printf("Enter first name: ");
+    if (scanf("%49s", firstName) != 1) {
+        fprintf(stderr, "Error: Value of first name supplied could not be read.\n");
         return 0;
     }
 
-    // Prompt the user for the first name and family name if they are not provided
-    if (*firstName == '\0') {
-        printf("Enter first name: ");
-        scanf("%s", firstName);
-    }
-    if (*familyName == '\0') {
-        printf("Enter family name: ");
-        scanf("%s", familyName);
+    printf("Enter family name: ");
+    if (scanf("%49s", familyName) != 1) {
+        fprintf(stderr, "Error: Value of family name supplied could not be read.\n");
+        return 0;
     }
 
     // Find and remove the contact
@@ -308,12 +322,13 @@ int removeContactByFullName(contact ***contacts, char *firstName, char *familyNa
 
             // Reallocate the memory for the contacts array
             int newSize = i;
-            *contacts = realloc(*contacts, sizeof(contact *) * (newSize + 1));
-            if (*contacts == NULL) {
-                perror("Error reallocating memory");
+            contact **newContacts = realloc(*contacts, sizeof(contact *) * (newSize + 1));
+            if (newContacts == NULL) {
+                fprintf(stderr, "Error: Memory reallocation failed in removeContactByFullName\n");
                 return 0;
             }
 
+            *contacts = newContacts;
             (*contacts)[newSize] = NULL; // Ensure the new end of the array is NULL
 
             printf("Contact '%s %s' removed successfully\n", firstName, familyName);
@@ -331,7 +346,7 @@ void listContacts(contact **contacts) {
     int count = countContacts(contacts);
 
     if (count == 0) {
-        printf("No contacts available.\n");
+        fprintf(stderr, "No contacts available.\n");
         return;
     }
 
@@ -353,7 +368,7 @@ void saveContactsToFile(contact **contacts, char *filename) {
 
     // Check if contacts array is NULL
     if (contacts == NULL) {
-        printf("Error: addressBook formal parameter passed value NULL in saveContactsToFile\n");
+        printf("Error: contacts formal parameter passed value NULL in saveContactsToFile\n");
         return;
     }
 
@@ -363,6 +378,15 @@ void saveContactsToFile(contact **contacts, char *filename) {
         printf("Error: file not opened in saveContactsToFile\n");
         return;
     }
+
+    // Determine the number of contacts
+    int count = 0;
+    while (contacts[count] != NULL) {
+        count++;
+    }
+
+    // Write the number of contacts to the file
+    fprintf(file, "%d\n", count);
 
     // Iterate through the contacts and write each to the file
     for (int i = 0; contacts[i] != NULL; i++) {
@@ -427,7 +451,7 @@ contact **loadContactsFromFile(char *filename) {
 
 }
 
-contact **mergeContactsFromFile(char *filename) {
+contact **mergeContactsFromFile(contact **contacts, char *filename) {
 
 
 }
@@ -442,7 +466,7 @@ contact *editContact() {
 
 }
 
-int menu() {
+void menu(contact **contacts) {
     int choice = 0;
     /*
      * Menu Output
@@ -465,56 +489,100 @@ int menu() {
     scanf("%d", &choice);
 
     /*
-     * Switch Statement to Find Function
+     * Switch Statement for Menu Options
      */
     switch (choice) {
+        /*
+         * Append Contact
+         */
         case 1:
             printf("1");
             break;
 
+        /*
+         * Insert Contact in Alphabetical Order
+         */
         case 2:
             printf("2");
             break;
 
+        /*
+         * Remove Contact by Index
+         */
         case 3:
             printf("3");
             break;
 
+        /*
+         * Remove Contact by Full Name
+         */
         case 4:
             printf("4");
             break;
 
+        /*
+         * Find and Edit Contact
+         */
         case 5:
             printf("5");
             break;
 
+        /*
+         * List Contacts
+         */
         case 6:
             printf("6");
             break;
 
+        /*
+         * Print Contacts to File with the format of an input file
+         */
         case 7:
             printf("7");
             break;
 
+        /*
+         * Print Contacts to File (Human Readable)
+         */
         case 8:
             printf("8");
             break;
 
+        /*
+         * Load Contacts from File Replacing Existing Contacts
+         */
         case 9:
             printf("9");
             break;
 
+        /*
+         * Append Contacts from File
+         */
         case 10:
             printf("10");
             break;
 
+        /*
+         * Merge Contacts from File
+         */
         case 11:
             printf("11");
             break;
 
+        /*
+         * Exit Program
+         */
         case 12:
-            printf("12");
-            break;
-
+            contact **contacts;
+            int contactsInList = countContacts(contacts);
+            for (int i = 0; i < contactsInList; i++) {
+                free(contacts[i]->firstName);
+                free(contacts[i]->familyName);
+                free(contacts[i]->address);
+                free(contacts[i]->age);
+                free(contacts[i]);
+            }
+        free(contacts);
     }
+
 }
