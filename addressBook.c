@@ -1,6 +1,6 @@
 /*
  * Name: Aadavn Nimalthas
- * Date Completed: ?
+ * Date Completed: March 21st, 2025
  *
  * Dynamic Address Book Application in C
  *
@@ -13,12 +13,16 @@
 #include <string.h>
 #include <ctype.h>
 
-/*Global Constants*/
+/*
+ *Global Constants
+ */
 #define MAX_INPUT 5
 #define MAX_NAME_LENGTH 100
 #define MAX_ADDRESS_LENGTH 100
 
-/*Structures*/
+/*
+ *Structures
+ */
 typedef struct contact {
     char *firstName;
     char *familyName;
@@ -27,7 +31,9 @@ typedef struct contact {
     int age;
 } contact;
 
-/*Required Function Prototypes*/
+/*
+ *Required Function Prototypes
+ */
 int countContacts(contact **contacts);
 contact *readNewContact();
 contact **appendContact(contact **contacts, contact *newContact);
@@ -48,20 +54,20 @@ contact **editContact(contact **contacts, int index );
 void menu(contact **contacts);
 
 /*
- * Option Handler Functions
+ * Menu Option Functions
  */
-void handleAppendContact(contact **contacts);
-void handleInsertContactAlphabetically(contact **contacts);
-void handleRemoveContactByIndex(contact **contacts);
-void handleRemoveContactByFullName(contact **contacts);
-void handleFindAndEditContact(contact **contacts);
-void handleListContacts(contact **contacts);
-void handlePrintContactsToFileInputFormat(contact **contacts);
-void handlePrintContactsToFileHumanReadable(contact **contacts);
-void handleLoadContactsFromFile(contact **contacts);
-void handleAppendContactsFromFile(contact **contacts);
-void handleMergeContactsFromFile(contact **contacts);
-void handleExitProgram(contact **contacts);
+void menuAppendContact(contact **contacts);
+void menuInsertContactAlphabetically(contact **contacts);
+void menuRemoveContactByIndex(contact **contacts);
+void menuRemoveContactByFullName(contact **contacts);
+void menuFindAndEditContact(contact **contacts);
+void menuListContacts(contact **contacts);
+void menuPrintContactsToFileInputFormat(contact **contacts);
+void menuPrintContactsToFileHumanReadable(contact **contacts);
+void menuLoadContactsFromFile(contact **contacts);
+void menuAppendContactsFromFile(contact **contacts);
+void menuMergeContactsFromFile(contact **contacts);
+void menuExitProgram(contact **contacts);
 
 /*
  *Helper Function
@@ -564,7 +570,7 @@ contact **appendContactsFromFile(contact **contacts, char *filename) {
         newContact->address = (char *)malloc(200 * sizeof(char));
         if (newContact->firstName == NULL || newContact->familyName == NULL || newContact->address == NULL) {
             fprintf(stderr, "Error: Memory allocation error, memory for string in Contact %d not allocated\n", i);
-            exit(EXIT_FAILURE); // As per the requirement to exit on string allocation error
+            exit(EXIT_FAILURE);
         }
 
         fscanf(file, "%s %s %lld %s %d", newContact->firstName, newContact->familyName, &newContact->phoneNum, newContact->address, &newContact->age);
@@ -702,7 +708,7 @@ contact **editContact(contact **contacts, int index) {
     printf("Enter index of contact to edit (0-%d): ", count - 1);
     char input[10];
     fgets(input, sizeof(input), stdin);
-    input[strcspn(input, "\n")] = '\0'; // Remove newline character
+    input[strcspn(input, "\n")] = '\0';
 
     if (sscanf(input, "%d", &index) != 1 || index < 0 || index >= count) {
         printf("Error: Invalid Index\n");
@@ -722,7 +728,7 @@ contact **editContact(contact **contacts, int index) {
 
         int option;
         fgets(input, sizeof(input), stdin);
-        input[strcspn(input, "\n")] = '\0'; // Remove newline character
+        input[strcspn(input, "\n")] = '\0';
         if (sscanf(input, "%d", &option) != 1) {
             printf("Error: Invalid option\n");
             continue;
@@ -732,7 +738,7 @@ contact **editContact(contact **contacts, int index) {
             case 1:
                 printf("Enter new first name: ");
                 fgets(input, sizeof(input), stdin);
-                input[strcspn(input, "\n")] = '\0'; // Remove newline character
+                input[strcspn(input, "\n")] = '\0';
                 free(contacts[index]->firstName);
                 contacts[index]->firstName = strdup(input);
                 if (contacts[index]->firstName == NULL) {
@@ -744,7 +750,7 @@ contact **editContact(contact **contacts, int index) {
             case 2:
                 printf("Enter new family name: ");
                 fgets(input, sizeof(input), stdin);
-                input[strcspn(input, "\n")] = '\0'; // Remove newline character
+                input[strcspn(input, "\n")] = '\0';
                 free(contacts[index]->familyName);
                 contacts[index]->familyName = strdup(input);
                 if (contacts[index]->familyName == NULL) {
@@ -756,7 +762,7 @@ contact **editContact(contact **contacts, int index) {
             case 3:
                 printf("Enter new address: ");
                 fgets(input, sizeof(input), stdin);
-                input[strcspn(input, "\n")] = '\0'; // Remove newline character
+                input[strcspn(input, "\n")] = '\0';
                 free(contacts[index]->address);
                 contacts[index]->address = strdup(input);
                 if (contacts[index]->address == NULL) {
@@ -768,7 +774,7 @@ contact **editContact(contact **contacts, int index) {
             case 4:
                 printf("Enter new phone number: Enter 10-digit phone number that must not start with 0: ");
                 fgets(input, sizeof(input), stdin);
-                input[strcspn(input, "\n")] = '\0'; // Remove newline character
+                input[strcspn(input, "\n")] = '\0';
                 long long newPhoneNum;
                 if (sscanf(input, "%lld", &newPhoneNum) != 1 || strlen(input) != 10 || input[0] == '0') {
                     printf("Error: Invalid phone number.\n");
@@ -780,7 +786,7 @@ contact **editContact(contact **contacts, int index) {
             case 5:
                 printf("Enter new age: ");
                 fgets(input, sizeof(input), stdin);
-                input[strcspn(input, "\n")] = '\0'; // Remove newline character
+                input[strcspn(input, "\n")] = '\0';
                 int newAge;
                 if (sscanf(input, "%d", &newAge) != 1 || newAge < 0 || newAge > 120) {
                     printf("Error: Invalid age.\n");
@@ -827,7 +833,7 @@ void menu(contact **contacts) {
          * Append Contact
          */
         case 1:
-            printf("1");
+            menuAppendContact(&**contacts);
             break;
 
         /*
@@ -907,5 +913,53 @@ void menu(contact **contacts) {
             printf("12");
             break;
     }
+
+}
+
+void menuAppendContact(contact **contacts) {
+
+}
+
+void menuInsertContactAlphabetically(contact **contacts) {
+
+}
+
+void menuRemoveContactByIndex(contact **contacts) {
+
+}
+
+void menuRemoveContactByFullName(contact **contacts) {
+
+}
+
+void menuFindAndEditContact(contact **contacts) {
+
+}
+
+void menuListContacts(contact **contacts) {
+
+}
+
+void menuPrintContactsToFileInputFormat(contact **contacts) {
+
+}
+
+void menuPrintContactsToFileHumanReadable(contact **contacts) {
+
+}
+
+void menuLoadContactsFromFile(contact **contacts) {
+
+}
+
+void menuAppendContactsFromFile(contact **contacts) {
+
+}
+
+void menuMergeContactsFromFile(contact **contacts) {
+
+}
+
+void menuExitProgram(contact **contacts) {
 
 }
