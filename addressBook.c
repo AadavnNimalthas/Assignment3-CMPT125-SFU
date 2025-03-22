@@ -19,6 +19,7 @@
 #define MAX_INPUT 5
 #define MAX_NAME_LENGTH 100
 #define MAX_ADDRESS_LENGTH 100
+#define PHONE_NUMBER_LENGTH 10
 
 /*
  *Structures
@@ -67,13 +68,14 @@ void menuPrintContactsToFileHumanReadable(contact **contacts);
 void menuLoadContactsFromFile(contact **contacts);
 void menuAppendContactsFromFile(contact **contacts);
 void menuMergeContactsFromFile(contact **contacts);
-void menuExitProgram(contact **contacts);
+void menuExit(contact **contacts);
 
 /*
  *Helper Function
  */
 int compareContacts(contact *a, contact *b);
 int isDuplicate(contact **contacts, int size, contact *newContact);
+void freeContact(contact **contacts);
 
 int main() {
 
@@ -840,126 +842,280 @@ void menu(contact **contacts) {
          * Insert Contact in Alphabetical Order
          */
         case 2:
-            printf("2");
+            menuInsertContactAlphabetically(&**contacts);
             break;
 
         /*
          * Remove Contact by Index
          */
         case 3:
-            printf("3");
+            void menuRemoveContactByIndex(**contacts);
             break;
 
         /*
          * Remove Contact by Full Name
          */
         case 4:
-            printf("4");
+            void menuRemoveContactByFullName(**contacts);
             break;
 
         /*
          * Find and Edit Contact
          */
         case 5:
-            printf("5");
+            void menuFindAndEditContact(**contacts);
             break;
 
         /*
          * List Contacts
          */
         case 6:
-            printf("6");
+            menuListContacts(&**contacts);
             break;
 
         /*
          * Print Contacts to File with the format of an input file
          */
         case 7:
-            printf("7");
+            menuPrintContactsToFileInputFormat(&**contacts);
             break;
 
         /*
          * Print Contacts to File (Human Readable)
          */
         case 8:
-            printf("8");
+            void menuPrintContactsToFileHumanReadable(**contacts);
             break;
 
         /*
          * Load Contacts from File Replacing Existing Contacts
          */
         case 9:
-            printf("9");
+            menuLoadContactsFromFile(&**contacts);
             break;
 
         /*
          * Append Contacts from File
          */
         case 10:
-            printf("10");
+            menuAppendContactsFromFile(&**contacts);
             break;
 
         /*
          * Merge Contacts from File
          */
         case 11:
-            printf("11");
+            menuMergeContactsFromFile(&**contacts);
             break;
 
         /*
          * Exit Program
          */
         case 12:
-            printf("12");
+            menuExitProgram(&**contacts);
             break;
     }
 
 }
 
 void menuAppendContact(contact **contacts) {
-
+    contact *newContact = readNewContact();
+    if (newContact != NULL) {
+        contacts = appendContact(contacts, newContact);
+        if (contacts != NULL) {
+            printf("New contact added successfully.\n");
+        } else {
+            printf("Failed to add the new contact.\n");
+        }
+    } else {
+        printf("Failed to read the new contact.\n");
+    }
 }
 
 void menuInsertContactAlphabetically(contact **contacts) {
-
+    contact *newContact = readNewContact();
+    if (newContact != NULL) {
+        contacts = insertContactAlphabetical(contacts, newContact);
+        if (contacts != NULL) {
+            printf("New contact inserted successfully in alphabetical order.\n");
+        } else {
+            printf("Failed to insert the new contact.\n");
+        }
+    } else {
+        printf("Failed to read the new contact.\n");
+    }
 }
 
 void menuRemoveContactByIndex(contact **contacts) {
+    if (contacts == NULL) {
+        printf("No contacts available to remove.\n");
+        return;
+    }
 
+    int index;
+    printf("Enter index to remove (0 based): ");
+    if (scanf("%d", &index) != 1) {
+        fprintf(stderr, "Error: Value of index supplied could not be read.\n");
+        return;
+    }
+
+    contacts = removeContactByIndex(contacts);
+    if (contacts != NULL) {
+        printf("Contact removed successfully.\n");
+    } else {
+        printf("Failed to remove the contact.\n");
+    }
 }
 
 void menuRemoveContactByFullName(contact **contacts) {
+    if (contacts == NULL) {
+        printf("No contacts available to remove.\n");
+        return;
+    }
 
+    int result = removeContactByFullName(&contacts);
+    if (result == 1) {
+        printf("Contact removed successfully.\n");
+    } else if (result == 2) {
+        printf("Contact not found.\n");
+    } else {
+        printf("Failed to remove the contact.\n");
+    }
 }
 
 void menuFindAndEditContact(contact **contacts) {
+    if (contacts == NULL || *contacts == NULL) {
+        printf("No contacts available to edit.\n");
+        return;
+    }
 
+    int index;
+    printf("Enter index of contact to edit (0 based): ");
+    if (scanf("%d", &index) != 1) {
+        fprintf(stderr, "Error: Value of index supplied could not be read.\n");
+        return;
+    }
+
+    int count = 0;
+    while (contacts[count] != NULL) {
+        count++;
+    }
+
+    if (index < 0 || index >= count) {
+        printf("Error: Invalid Index\n");
+        return;
+    }
+
+    contacts = editContact(contacts, index);
+    if (contacts != NULL) {
+        printf("Contact edited successfully.\n");
+    } else {
+        printf("Failed to edit the contact.\n");
+    }
 }
 
 void menuListContacts(contact **contacts) {
+    if (contacts == NULL || *contacts == NULL) {
+        printf("No contacts available to display.\n");
+        return;
+    }
 
+    listContacts(contacts);
 }
 
 void menuPrintContactsToFileInputFormat(contact **contacts) {
+    if (contacts == NULL || *contacts == NULL) {
+        printf("No contacts available to save.\n");
+        return;
+    }
 
+    char filename[100];
+    printf("Enter the filename to save the contacts: ");
+    scanf("%s", filename);
+
+    saveContactsToFile(contacts, filename);
+    printf("Contacts have been saved to the file '%s' in input file format.\n", filename);
 }
 
 void menuPrintContactsToFileHumanReadable(contact **contacts) {
+    if (contacts == NULL || *contacts == NULL) {
+        printf("No contacts available to save.\n");
+        return;
+    }
 
+    char filename[100];
+    printf("Enter the filename to save the contacts: ");
+    scanf("%s", filename);
+
+    printContactsToFile(contacts, filename);
+    printf("Contacts have been saved to the file '%s' in human-readable format.\n", filename);
 }
 
 void menuLoadContactsFromFile(contact **contacts) {
+    char filename[100];
+    printf("Enter the filename to load the contacts from: ");
+    scanf("%s", filename);
 
+    contact **newContacts = loadContactsFromFile(contacts, filename);
+    if (newContacts != NULL) {
+        contacts = newContacts;
+        printf("Contacts have been loaded from the file '%s'.\n", filename);
+    } else {
+        printf("Failed to load contacts from the file.\n");
+    }
 }
 
 void menuAppendContactsFromFile(contact **contacts) {
+    if (contacts == NULL) {
+        printf("No contacts available to append.\n");
+        return;
+    }
 
+    char filename[100];
+    printf("Enter the filename to append the contacts from: ");
+    scanf("%s", filename);
+
+    contact **newContacts = appendContactsFromFile(contacts, filename);
+    if (newContacts != NULL) {
+        contacts = newContacts;
+        printf("Contacts have been appended from the file '%s'.\n", filename);
+    } else {
+        printf("Failed to append contacts from the file.\n");
+    }
 }
 
 void menuMergeContactsFromFile(contact **contacts) {
+    if (contacts == NULL) {
+        printf("No contacts available to merge.\n");
+        return;
+    }
 
+    char filename[100];
+    printf("Enter the filename to merge the contacts from: ");
+    scanf("%s", filename);
+
+    contact **newContacts = mergeContactsFromFile(contacts, filename);
+    if (newContacts != NULL) {
+        contacts = newContacts;
+        printf("Contacts have been merged from the file '%s'.\n", filename);
+    } else {
+        printf("Failed to merge contacts from the file.\n");
+    }
 }
 
-void menuExitProgram(contact **contacts) {
+void menuExit(contact **contacts) {
+    if (contacts != NULL) {
+        // Free all allocated memory for contacts
+        for (int i = 0; contacts[i] != NULL; i++) {
+            free(contacts[i]->firstName);
+            free(contacts[i]->familyName);
+            free(contacts[i]->address);
+            free(contacts[i]);
+        }
 
+        free(contacts);
+    }
+
+    printf("All contacts have been freed. Exiting the program.\n");
+    exit(0);
 }
