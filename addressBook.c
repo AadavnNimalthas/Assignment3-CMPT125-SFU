@@ -835,87 +835,86 @@ void menu(contact **contacts) {
          * Append Contact
          */
         case 1:
-            menuAppendContact(&**contacts);
-            break;
+            menuAppendContact(contacts);
+        break;
 
         /*
          * Insert Contact in Alphabetical Order
          */
         case 2:
-            menuInsertContactAlphabetically(&**contacts);
-            break;
+            menuInsertContactAlphabetically(contacts);
+        break;
 
         /*
          * Remove Contact by Index
          */
         case 3:
-            void menuRemoveContactByIndex(**contacts);
-            break;
+            menuRemoveContactByIndex(contacts);
+        break;
 
         /*
          * Remove Contact by Full Name
          */
         case 4:
-            void menuRemoveContactByFullName(**contacts);
-            break;
+            menuRemoveContactByFullName(contacts);
+        break;
 
         /*
          * Find and Edit Contact
          */
         case 5:
-            void menuFindAndEditContact(**contacts);
-            break;
+            menuFindAndEditContact(contacts);
+        break;
 
         /*
          * List Contacts
          */
         case 6:
-            menuListContacts(&**contacts);
-            break;
+            menuListContacts(contacts);
+        break;
 
         /*
          * Print Contacts to File with the format of an input file
          */
         case 7:
-            menuPrintContactsToFileInputFormat(&**contacts);
-            break;
+            menuPrintContactsToFileInputFormat(contacts);
+        break;
 
         /*
          * Print Contacts to File (Human Readable)
          */
         case 8:
-            void menuPrintContactsToFileHumanReadable(**contacts);
-            break;
+            menuPrintContactsToFileHumanReadable(contacts);
+        break;
 
         /*
          * Load Contacts from File Replacing Existing Contacts
          */
         case 9:
-            menuLoadContactsFromFile(&**contacts);
-            break;
+            menuLoadContactsFromFile(contacts);
+        break;
 
         /*
          * Append Contacts from File
          */
         case 10:
-            menuAppendContactsFromFile(&**contacts);
-            break;
+            menuAppendContactsFromFile(contacts);
+        break;
 
         /*
          * Merge Contacts from File
          */
         case 11:
-            menuMergeContactsFromFile(&**contacts);
-            break;
+            menuMergeContactsFromFile(contacts);
+        break;
 
         /*
          * Exit Program
          */
         case 12:
-            menuExitProgram(&**contacts);
-            break;
+            menuExit(contacts);
+        break;
     }
-
 }
 
 void menuAppendContact(contact **contacts) {
